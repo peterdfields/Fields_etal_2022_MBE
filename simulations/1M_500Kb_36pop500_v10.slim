@@ -1,0 +1,355 @@
+//
+// Slim script to simulate 500K generations of a structured population with cyclical asexuality 36 pops of 500 individuals 
+// First draft by DJO April 2018. 
+// Almost entirely written by PF prior to 20 June 2018, 
+// Major edits by DJO 22June-9July2018, and March 2021
+// 
+// slim -d RunID=17 -d Migration_Fraction=0.074 -d Sex_periodicity=1 -d ReportFrequency=1000 1M_500Kb_36pop500_v10.slim >> convergence_0.00074_10_17.tsv
+// to continue, using file $RunID.SLiMSim
+//
+
+
+// Define a function to calculate the FST between two subpopulations
+// written by PF, nPops reduced by DJO and choice of calculation order by DJO
+
+function (f$)calcFST(o<Subpopulation>$ subpop1, o<Subpopulation>$ subpop2, o<Subpopulation>$ subpop3, o<Subpopulation>$ subpop4, o<Subpopulation>$ subpop5, o<Subpopulation>$ subpop6 ,o<Subpopulation>$ subpop7, o<Subpopulation>$ subpop8, o<Subpopulation>$ subpop9, o<Subpopulation>$ subpop10, o<Subpopulation>$ subpop11, o<Subpopulation>$ subpop12, o<Subpopulation>$ subpop13, o<Subpopulation>$ subpop14, o<Subpopulation>$ subpop15, o<Subpopulation>$ subpop16, o<Subpopulation>$ subpop17, o<Subpopulation>$ subpop18, o<Subpopulation>$ subpop19, o<Subpopulation>$ subpop20, o<Subpopulation>$ subpop21, o<Subpopulation>$ subpop22, o<Subpopulation>$ subpop23, o<Subpopulation>$ subpop24, o<Subpopulation>$ subpop25, o<Subpopulation>$ subpop26, o<Subpopulation>$ subpop27, o<Subpopulation>$ subpop28, o<Subpopulation>$ subpop29, o<Subpopulation>$ subpop30, o<Subpopulation>$ subpop31, o<Subpopulation>$ subpop32, o<Subpopulation>$ subpop33, o<Subpopulation>$ subpop34, o<Subpopulation>$ subpop35, o<Subpopulation>$ subpop36)
+{
+	//only using type 1 ('synonymous')
+	muts = sim.mutationsOfType(m1);
+
+	p1_p = sim.mutationFrequencies(subpop1,muts);
+	p2_p = sim.mutationFrequencies(subpop2,muts);
+	p3_p = sim.mutationFrequencies(subpop3,muts);
+	p4_p = sim.mutationFrequencies(subpop4,muts);
+	p5_p = sim.mutationFrequencies(subpop5,muts);
+	p6_p = sim.mutationFrequencies(subpop6,muts);
+	p7_p = sim.mutationFrequencies(subpop7,muts);
+	p8_p = sim.mutationFrequencies(subpop8,muts);
+	p9_p = sim.mutationFrequencies(subpop9,muts);
+	p10_p = sim.mutationFrequencies(subpop10,muts);
+	p11_p = sim.mutationFrequencies(subpop11,muts);
+	p12_p = sim.mutationFrequencies(subpop12,muts);
+	p13_p = sim.mutationFrequencies(subpop13,muts);
+	p14_p = sim.mutationFrequencies(subpop14,muts);
+	p15_p = sim.mutationFrequencies(subpop15,muts);
+	p16_p = sim.mutationFrequencies(subpop16,muts);
+	p17_p = sim.mutationFrequencies(subpop17,muts);
+	p18_p = sim.mutationFrequencies(subpop18,muts);
+	p19_p = sim.mutationFrequencies(subpop19,muts);
+	p20_p = sim.mutationFrequencies(subpop20,muts);
+	p21_p = sim.mutationFrequencies(subpop21,muts);
+	p22_p = sim.mutationFrequencies(subpop22,muts);
+	p23_p = sim.mutationFrequencies(subpop23,muts);
+	p24_p = sim.mutationFrequencies(subpop24,muts);
+	p25_p = sim.mutationFrequencies(subpop25,muts);
+	p26_p = sim.mutationFrequencies(subpop26,muts);
+	p27_p = sim.mutationFrequencies(subpop27,muts);
+	p28_p = sim.mutationFrequencies(subpop28,muts);
+	p29_p = sim.mutationFrequencies(subpop29,muts);
+	p30_p = sim.mutationFrequencies(subpop30,muts);
+	p31_p = sim.mutationFrequencies(subpop31,muts);
+	p32_p = sim.mutationFrequencies(subpop32,muts);
+	p33_p = sim.mutationFrequencies(subpop33,muts);
+	p34_p = sim.mutationFrequencies(subpop34,muts);
+	p35_p = sim.mutationFrequencies(subpop35,muts);
+	p36_p = sim.mutationFrequencies(subpop36,muts);
+
+	//calc mean allel frequencies for each locus (result is a vector)
+	mean_p = (p1_p + p2_p +  p3_p +  p4_p +  p5_p +  p6_p +  p7_p +  p8_p +  p9_p +  p10_p +  p11_p +  p12_p +  p13_p +  p14_p +  p15_p +  p16_p +  p17_p +  p18_p +  p19_p +  p20_p +  p21_p +  p22_p +  p23_p +  p24_p +  p25_p +  p26_p +  p27_p +  p28_p +  p29_p +  p30_p +  p31_p +  p32_p +  p33_p +  p34_p +  p35_p +  p36_p) / 36.0;
+	// use that to calc overall diversity (at each locus, result is a vector)
+	H_t = 2.0* mean_p * (1.0 - mean_p);
+
+	// calc local diversity across subsups (at each locus, result is a vector)
+	H_s = (2.0 * p1_p * (1.0 - p1_p) + 2.0 * p2_p * (1.0 - p2_p) + 2.0 * p3_p * (1.0 - p3_p) + 2.0 * p4_p * (1.0 - p4_p) + 2.0 * p5_p * (1.0 - p5_p) + 2.0 * p6_p * (1.0 - p6_p) + 2.0 * p7_p * (1.0 - p7_p) + 2.0 * p8_p * (1.0 - p8_p) + 2.0 * p9_p * (1.0 - p9_p) + 2.0 * p10_p * (1.0 - p10_p) + 2.0 * p11_p * (1.0 - p11_p) + 2.0 * p12_p * (1.0 - p12_p) + 2.0 * p13_p * (1.0 - p13_p) + 2.0 * p14_p * (1.0 - p14_p) + 2.0 * p15_p * (1.0 - p15_p) + 2.0 * p16_p * (1.0 - p16_p) + 2.0 * p17_p * (1.0 - p17_p) + 2.0 * p18_p * (1.0 - p18_p) + 2.0 * p19_p * (1.0 - p19_p) + 2.0 * p20_p * (1.0 - p20_p) + 2.0 * p21_p * (1.0 - p21_p) + 2.0 * p22_p * (1.0 - p22_p) + 2.0 * p23_p * (1.0 - p23_p) + 2.0 * p24_p * (1.0 - p24_p) + 2.0 * p25_p * (1.0 - p25_p) + 2.0 * p26_p * (1.0 - p26_p) + 2.0 * p27_p * (1.0 - p27_p) + 2.0 * p28_p * (1.0 - p28_p) + 2.0 * p29_p * (1.0 - p29_p) + 2.0 * p30_p * (1.0 - p30_p) + 2.0 * p31_p * (1.0 - p31_p) + 2.0 * p32_p * (1.0 - p32_p) + 2.0 * p33_p * (1.0 - p33_p) + 2.0 * p34_p * (1.0 - p34_p) + 2.0 * p35_p * (1.0 - p35_p) + 2.0 * p36_p * (1.0 - p36_p))/36.0;
+
+	// estimate Fst as the ratio of diversity estimates
+	fst = ( mean(H_t) - mean(H_s) ) / mean(H_t);
+	
+	return fst;
+
+}
+
+
+//
+// set up a simple neutral simulation to test
+// Scalings chosen by DJO in consultation with Brian Charlesworth (selection matches Drosophila, Not the inferred D. magna parameters)
+//
+//
+
+
+initialize(){
+
+	// set the overall mutation rate
+	// there can also be a map of rates
+	// Local diversity pi_s=0.011. eqtn 7.4 p319 in C&C says this should be 4dNu. Here using 500 local deme size, so 4 x 36 x 500 x u = 0.011 =>  u=1.53e-7
+	// Previously, True mutation rate of 5.6e-9, so a scaling factor of 27.3. This could provide a lower bracket
+	// Now, True mutation rate of 8.96e-9, so a scaling factor would be 1.53e-7 / 8.96e-9 = 17.1
+	// If we wanted to provide an upper bracket, I suggest 8.96e-9 + (8.96e-9 - 5.6e-9) = 1.2e-8. This gives a scaling factor of 1.53e-7 / 1.2e-8 = 12.8
+	initializeMutationRate(1.53e-7);
+
+
+	// m1 mutation type: "m1" it the name of the type, 0.5 for additive, "f" for fixed effect size, "0.0" for neutral
+	initializeMutationType("m1", 0.5, "f", 0.0);
+	// deleterious dfe with gamma. parameters are MEAN(*not* scale or rate!) and shape
+	// in Dmel BC aims for 2Ns=2000. = 2 x 36 x 1000 x s => 2000/(2*36*500) =0.0556
+	initializeMutationType("m2", 0.5, "g", -0.056, 0.3);
+	//in Dmel BC aims for 2Ns = 250 with a rate of 2.21e-4. 2Ns = 250 => 250/(2*36*500)
+	// beneficial with fixed advantage 
+	initializeMutationType("m3", 0.5, "f", 0.007);
+
+	//----------------------------------------------------------------
+	// If this were a this is a NEUTRAL test!
+	//initializeMutationType("m1", 0.5, "f", 0.0);
+	//initializeMutationType("m2", 0.5, "f", 0.0);
+	//initializeMutationType("m3", 0.5, "f", 0.0);
+	//----------------------------------------------------------------
+	
+	
+	
+
+	// g1 genomic element type. AKA an exon with 24% neutral, 76% from the DFE and 0.02% beneficial 
+	initializeGenomicElementType("g1", c(m1, m2, m3), c(0.24,0.7598,0.0002));
+
+	// chromosome of length 0.5 Mb with fifty 5Kb genes
+	for(g in 1:50){
+		initializeGenomicElement(g1, (g-1)*10000+2500, (g-1)*10000+4999+2500 );
+	}
+
+
+	// uniform recombination along the chromosome 
+	// True recombiantion rate of 1.655e-07 (mean across linkage groups https://bmcgenet.biomedcentral.com/articles/10.1186/s12863-016-0445-7). 
+	// Scaling factor using our upper-bracket mutation rate is then 12.8 * 1.655e-07 = 2.13e-06
+	initializeRecombinationRate(2.13e-6); 
+}
+
+
+// in the first generation
+	// for migration m, local N and d demes  Fst in a finite Island, ignoring selection and mutation, is expected to be = 1/(1+((4Nmd^2)/(d-1)^2)) =>(((1-F)/F)*(d-1)^2)/(4*N*d^2)
+	// so if Fst=0.24, for N=1000 and d=36 m=0.000748296
+	// so if Fst=0.24, for N=500 and d=36 m=0.001496592	
+
+1 early() {
+
+	numPops = 36;
+	popSize = 500;
+
+	
+	// if this simulation is being picked up again from an earlier run. Choice is defined by command-line constant PickUp [1|0]
+	if(PickUp==1){
+	
+		sim.readFromPopulationFile(RunID + ".SLiMSim");
+		cat("\nPickup " + sim.generation +"\n");
+		sim.setValue("StartGen",sim.generation);
+		sim.generation=1;	
+		
+	}else{ // if this is not being picked up from a checkpoint, set up the populations
+
+		sim.setValue("StartGen",0);	 //constant to be added
+		for (i in 1:numPops){
+			sim.addSubpop(i, popSize);
+		}
+		
+
+	}
+
+	//set migration rates. This is not stored in the checkpoint
+	for (i in 1:numPops)
+	{
+		for (j in 1:numPops)
+		{
+			if (i != j)
+			{
+				// Edited by DJO to add numPops as a denominator and to make Migration_Fraction a command-like constant
+				sim.subpopulations[i-1].setMigrationRates(j, Migration_Fraction/numPops); 
+				// this should be the back migration rate, so the rate each other subpop sends migrants into a focal pop -PF
+				// there is also a page in the manual to read in a migration matrix if you want separate migration rates among some demes -PF
+			}
+		}		
+	}
+	
+	// initially set all pops to be clonal
+	for (i in 1:numPops)
+	{
+		sim.subpopulations[i-1].setCloningRate(0.99); // almost fully asexual at the start
+	}
+}
+
+// Early in each generation
+// set the clonal rate early (Before mating)
+// see page 50 of the manual, this should vary the clonal reproduction rate to either 0 or 1, with every "Sex_periodicity" generation being sexual
+1:1000000 early(){
+	// Sex_periodicity = 1; // Now a command-like constant - DJO
+	numPops = 36;
+	if( sim.generation % Sex_periodicity == 0)
+	{
+		for (i in 1:numPops)
+			sim.subpopulations[i-1].setCloningRate(0.0);
+	}
+	else
+	{
+		for (i in 1:numPops)
+			sim.subpopulations[i-1].setCloningRate(0.99);
+	}
+	
+}
+
+
+//late in each generation
+// opportunity to calc some summary stats on the fly to follow convergence. This is to stdout, but can (and should) be redirected to a file
+2:1000000 late(){
+
+	npops=36;
+
+
+	//live readout of summary stats to re-direct from stdout
+	if((sim.generation) % ReportFrequency == 0){
+
+		//DJO
+		//Global diversity by averaging gene diversity from all sim data *without* a finite-sample correction.  - probably won't behave if there are mor segrgating varients than sites
+		syn_muts = sim.mutationsOfType(m1);
+		syn_freqs = sim.mutationFrequencies(NULL,syn_muts);
+		pi_s_global = sum(2 * syn_freqs * (1 - syn_freqs))/ (5000 * 50 * 0.24 );
+		// where there are ten loci of 5 kb, and 24% of mutations are neutral. i.e. 12K syn sites
+		non_muts1 = sim.mutationsOfType(m2);
+		non_freqs1 = sim.mutationFrequencies(NULL,non_muts1);
+		non_muts2 = sim.mutationsOfType(m3);
+		non_freqs2 = sim.mutationFrequencies(NULL,non_muts2);
+		pi_a_global = ( sum(2 * non_freqs1 * (1 - non_freqs1))+ sum(2 * non_freqs2 * (1 - non_freqs2)))/ (5000 * 50 * 0.76);
+		// where there are ten loci of 5 kb, and 76% of mutations are non-neutral. i.e. 38K non-syn sites
+
+		
+		//DJO
+		//Local syn diversity based on pairwise differences, based on a sample of one diploid individual per population 
+		//for each subpopulation
+		running_pis_total=0;
+		for (subp in 1:npops) { 
+			//for the first individual in the subpopulation // assuming they're exchangable!
+			
+			// Calculate the nucleotide heterozygosity of this individual
+			muts0 = sim.subpopulations[subp-1].individuals[0].genomes[0].mutationsOfType(m1);
+			muts1 = sim.subpopulations[subp-1].individuals[0].genomes[1].mutationsOfType(m1);
+			
+			// Count the shared mutations
+			shared_count = sum(match(muts0, muts1) >= 0);	
+			
+			// All remaining mutations are unshared (i.e. heterozygous)
+			unshared_count = muts0.size() + muts1.size() - 2 * shared_count;			
+
+			pi_ind = unshared_count / (5000 * 50 * 0.24);
+			running_pis_total = running_pis_total + pi_ind;		
+		}		
+		pi_s_local = running_pis_total / npops;
+		
+		
+		
+		//DJO
+		//Local nonsyn (deleterious only!) diversity based on pairwise differences, based on a sample of one diploid individual per population 
+		//for each subpopulation
+		running_pin_total=0;
+		for (subp in 1:npops) { 
+			//for the first individual in the subpopulation // assuming they're exchangable!
+			
+			// Calculate the nucleotide heterozygosity of this individual
+			muts0 = sim.subpopulations[subp-1].individuals[0].genomes[0].mutationsOfType(m2);
+			muts1 = sim.subpopulations[subp-1].individuals[0].genomes[1].mutationsOfType(m2);
+			
+			// Count the shared mutations
+			shared_count = sum(match(muts0, muts1) >= 0);	
+			
+			// All remaining mutations are unshared (i.e. heterozygous)
+			unshared_count = muts0.size() + muts1.size() - 2 * shared_count;			
+
+			pi_ind = unshared_count / (5000 * 50 * 0.24);
+			running_pin_total = running_pin_total + pi_ind;		
+		}		
+		
+		pi_a_local = running_pin_total / npops;
+
+
+		
+		// calculate FST using syn polymorphisms only
+		FST=calcFST(p1, p2,p3,p4,p5,p6,p7,p8,p9,p10,p11,p12,p13,p14,p15,p16,p17,p18,p19,p20,p21,p22,p23,p24,p25,p26,p27,p28,p29,p30,p31,p32,p33,p34,p35,p36);
+
+
+		// MK numbers	
+		
+		// Count the substitutions  of each type - I think these can be treated as the fixed differences
+		Ds = sum(sim.substitutions.mutationType == m1);		
+		Dna = sum(sim.substitutions.mutationType == m2);
+		Da = sum(sim.substitutions.mutationType == m3);
+
+		// For Polymorphisms I would like to sample one diploid individual from each subpopulation, 
+		// but I cannot work out how to count the distinct mutations in that combined sample
+		Ps = sum(sim.mutations.mutationType == m1);
+		Pna =  sum(sim.mutations.mutationType == m2);
+		Pa = sum(sim.mutations.mutationType == m3);
+	
+
+		// and this is the naive/classic estimater of 'a'
+		Classic_estimate_of_a=(Dna+Da)-(Ds*(Pna+Pa)/Ps);
+		
+		//report correct number of generations
+		trueGen=sim.getValue("StartGen")+sim.generation;
+		
+		//output all of these these to stdout. Keep appending to this file across multiple pickups
+		cat("d36N500:Pars\t" + RunID +"\t"+ trueGen +"\t"+ Migration_Fraction +"\t"+ Sex_periodicity + "\tpi\t" + pi_s_local +"\t"+ pi_a_local +"\t"+ pi_s_global +"\t"+ pi_a_global +"\t"+ FST + "\tD\t" + Ds +"\t"+ Dna +"\t"+ Da + "\tP\t" + Ps +"\t"+ Pna +"\t"+ Pa + "\ta\t" + Classic_estimate_of_a + "\n");
+		
+	}
+	
+	//checkpoint every 100K generations
+	if((sim.generation) % 100000 == 0){
+
+		//record the internal generation number
+		backup_generation=sim.generation ;
+	
+		//set the sim.generation to be the true number across runs,so that this is saved in the snapshot
+		sim.generation=sim.getValue("StartGen")+sim.generation;
+
+		//output full state of the simulation - needed to re-start the simulation, but not needed to be human readable, so binary to keep it small
+		sim.outputFull(RunID + ".SLiMSim", binary = T); //
+		
+		//output all fixations that occured during this run (*not* since the last checkpoint)
+		sim.outputFixedMutations("fixations" + sim.getValue("StartGen") + "_" + Migration_Fraction + "_" + Sex_periodicity + "_" + RunID + ".txt");
+		
+		//output genomes for 1 diploid individual per population
+		//Aim to sample the first individual in each of the first 36 populations. I belive both individuals and populations are exchangable.
+		
+		// remove any pre-existing output file so that any previous final-generation SNPs are removed
+		writeFile("mutations" + sim.getValue("StartGen") + "_" + Migration_Fraction + "_" + Sex_periodicity  + "_" + RunID + ".txt", "", append = F);
+		
+		// write out one individual per  population
+		for (i in 1:36){
+			sim.subpopulations[i-1].individuals[1].genomes.output("mutations" + sim.getValue("StartGen") + "_" + Migration_Fraction + "_" + Sex_periodicity + "_" + RunID + ".txt", append=T);
+		}
+
+		//return the internal generation number to its correct value
+		sim.generation=backup_generation;
+		
+	
+	}
+}
+
+
+// after the end of the final generation
+1000000 late() { 		
+
+	//set the sim.generation to be the true number across runs
+	sim.generation=sim.getValue("StartGen")+sim.generation;
+
+	//output full state of the simulation - needed to re-start the simulation, but not needed to be human readable, so binary to keep it small
+	sim.outputFull(RunID + ".SLiMSim", binary=T); //
+	
+	//output all fixations // Record the start generation for this tranche in the file name, so that this can be used to recover the true times for the mutations
+	sim.outputFixedMutations("fixations_" + Migration_Fraction + "_" + Sex_periodicity + "_" + sim.getValue("StartGen") + "_" + RunID + ".txt");
+	
+	//output genomes for 1 diploid individual per population
+	//Aim to sample the first individual in each of the first 36 populations. I believe both individuals and populations are exchangeable.
+	
+	// If picking-up, remove any pre-existing output file so that any previous final-generation SNPs are removed // Record the start generation for this tranche
+	writeFile("mutations_" + Migration_Fraction + "_" + Sex_periodicity + "_" + sim.getValue("StartGen") + "_" + RunID + ".txt", "", append = F);
+	for (i in 1:36){
+		sim.subpopulations[i-1].individuals[1].genomes.output("mutations_" + Migration_Fraction + "_" + Sex_periodicity + "_" + sim.getValue("StartGen") + "_" + RunID + ".txt", append=T);
+	}
+}
+
+
