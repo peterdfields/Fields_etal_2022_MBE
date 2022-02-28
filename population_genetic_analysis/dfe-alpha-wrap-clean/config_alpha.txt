@@ -1,0 +1,8 @@
+data_path_1	/home/s1348847/Programs/dfe-alpha-release-2.14/data/
+divergence_file	./div.txt
+est_alpha_omega_results_file	./est_alpha_omega.out
+est_dfe_results_file	./est_dfe.out
+neut_egf_file	./neut_egf.out
+sel_egf_file	./sel_egf.out
+do_jukes_cantor	0
+remove_poly	0

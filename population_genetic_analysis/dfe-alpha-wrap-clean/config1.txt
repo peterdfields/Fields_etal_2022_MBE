@@ -1,0 +1,11 @@
+data_path_1	/home/s1348847/Programs/dfe-alpha-release-2.14/data
+sfs_input_file	./sfs.txt
+est_dfe_results_dir	.
+est_dfe_demography_results_file	est_dfe.out
+site_class	1
+fold	1
+epochs	2
+mean_s_variable	1
+mean_s	-0.1
+beta_variable	1
+beta	0.5

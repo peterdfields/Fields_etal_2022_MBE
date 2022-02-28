@@ -1,0 +1,9 @@
+data_path_1	/home/s1348847/Programs/dfe-alpha-release-2.14/data
+sfs_input_file	./sfs.txt
+est_dfe_results_dir	.
+site_class	0
+fold	1
+epochs	2
+search_n2	1
+t2_variable	1
+t2	50

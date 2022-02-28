@@ -1,0 +1,7 @@
+Ago1.fasta
+Ago1.fasta
+dcr1.fasta
+drosha.fasta
+pasha.fasta
+dcr1.fasta
+meip26.fasta
